@@ -1,4 +1,5 @@
 import numpy as np
+PI=np.pi
 
 #TODO Converting Image to Gray scale  1 channel
 def Convert_gray(image : np.ndarray)->np.ndarray:
@@ -14,3 +15,19 @@ def Convert_gray(image : np.ndarray)->np.ndarray:
     assert gray.shape == (image.shape[0],image.shape[1]), f"Error -> converting Failed : two ndarray's shape is different"
     
     return gray
+
+def Get_filter_scope(threshold : float, sigma: float)->int :
+    """
+    -Get filter size
+    -Formula
+        1/(sigma*sqrt(2*pi)*exp(-x^2/(2sigma^2) = T
+    -Given Gaussian N(0,sigma), User can choose threshold that determine scope used filter
+    FIlter size is Odd
+    Final Filter size is Scope * 2 + 1
+    """
+    ln_term = -np.log(threshold*sigma*np.sqrt(PI*2))
+    scope = np.sqrt(ln_term * 2 * (sigma ** 2))
+    filter_scope = np.round(scope)
+    return filter_scope
+def Get_filter_size(filter_scope:int)->int:
+    return filter_scope * 2 + 1    
