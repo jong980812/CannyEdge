@@ -1,8 +1,7 @@
 # CannyEdge
 
 Smoothing - Gaussian  
-Gradient - Magnitude / Angle    
-         - DoG / LoG / Sobel / ...    
+Gradient - magnitude / angle  ,  - DoG / LoG / Sobel / ...    
 Nonmax suppression  
 Double thresholding  
 Hysteresis  
