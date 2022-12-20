@@ -1,15 +1,9 @@
 import numpy as np
-from utils import Get_paddig_image
+from utils import Get_paddig_image, MakeGrid
 PI=np.pi
 
 
-def MakeGrid(size : int)->np.ndarray:
-    '''
-    #@ size: number of grid width,height -> filter_scope
-    #@ np.meshgrid make grid each axis( x, y )
-    '''
-    x,y = np.meshgrid(range(-int(size), int(size) + 1), range(-int(size), int(size) + 1))
-    return x,y
+
 def Get_Gaussian_2d(x:np.ndarray=None ,y:np.ndarray=None ,sigma=None)->np.ndarray:
     '''
     Gaussian 2d function

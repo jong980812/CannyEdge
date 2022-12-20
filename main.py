@@ -3,6 +3,7 @@ import os
 import cv2
 import utils
 from preprocessing import Convert_gray, Get_filter_size,Get_filter_scope
+from gradient import Get_gradient, Gradient_Magnitude_Angle
 from smoothing import Smoothing
 def get_args():
     parser = argparse.ArgumentParser('VideoMAE fine-tuning and evaluation script for video classification', add_help=False)
@@ -14,7 +15,7 @@ def get_args():
     parser.add_argument('--kernel_size', default=None, type=int,                            help='Direct setting Kernel size')
     parser.add_argument('--gradient', default='sobel', 
                        choices=['roberts','sobel','prewitt','LoG','DoG'],                   help='Choose Mehotd to calculate gradient')    
-    
+
 
     return parser.parse_args()
 
@@ -30,9 +31,12 @@ def main(args):
         filter_scope=int((filter_size-1)/2)
 
     Smoothing_img=Smoothing(gray_img, args.smoothing, args.sigma,filter_scope, filter_size)
-    utils.Show_smoothing_img(gray_img,Smoothing_img)
+    # utils.Show_smoothing_img(gray_img,Smoothing_img)
+    G_mag,G_Angle=Gradient_Magnitude_Angle(Smoothing_img, 'DoG', filter_size, args.sigma)
+    utils.Show_img(G_Angle)
+    #TODO 커널과 필터 분명히 하기.
     
-
+    
 if __name__== "__main__":
     args=get_args()
     if not os.path.isdir(os.path.join(args.run_dir,'result')):  

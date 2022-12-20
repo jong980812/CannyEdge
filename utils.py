@@ -33,4 +33,14 @@ def Show_smoothing_img(original, transform:np.ndarray)->None:
     img2= fig.add_subplot(1,2,2)
     img2.imshow(transform,cmap='gray')
     plt.show()
-    
+def Show_img(original):
+    plt.figure(figsize=(10,10))
+    plt.imshow(original, cmap='gray')
+    plt.show()
+def MakeGrid(size : int)->np.ndarray:
+    '''
+    #@ size: number of grid width,height -> filter_scope
+    #@ np.meshgrid make grid each axis( x, y )
+    '''
+    x,y = np.meshgrid(range(-int(size), int(size) + 1), range(-int(size), int(size) + 1))
+    return x,y
