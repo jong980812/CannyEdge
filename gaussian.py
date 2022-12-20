@@ -1,33 +1,45 @@
 import numpy as np
 
 
-def two_dim_gaussian(x, y, std) -> float :
+def two_dim_gaussian(x, y, std) :
+    ''' input : x, y coordinates, std for 2d gaussian distribution
+        return : the float value of 2d gaussian function '''
     return np.exp(-1 * (x**2 + y**2) / (2 * std**2)) / (2 * np.pi * std**2)
 
 
-def generate_gaussian_filter(kernel_size, std) -> np.ndarray :  
-    g_filter = np.zeros((kernel_size, kernel_size))
-    half_size = kernel_size // 2
-    for i, x in enumerate(range(-1 * half_size, half_size + 1)) :
-        for j, y in enumerate(range(-1 * half_size, half_size + 1)) : 
-            g_filter[i, j] = two_dim_gaussian(x, y, std)    #* g_filter[0, 0] = gaussian(-2, -2, std) if k = 3, 가우시안 필터 좌측 상단 첫번쨰 원소로는 원점에서 x축, y축 -2씩 떨어져있는 지점에서의 가우시안 값이 들어 감
+def generate_gaussian_filter(kernel_size, std) :
+    ''' input : kernel size, std for gaussian
+        return : gaussian smoothing filter matrix '''  
+    g_filter = np.zeros((kernel_size, kernel_size))    #* initialize, filter shape = (k, k)
     
-    print(g_filter)
+    half_size = kernel_size // 2
+    #* use the center pixel in kernel as the origin
+    for i, x in enumerate(range(-1 * half_size, half_size + 1)) :      
+        for j, y in enumerate(range(-1 * half_size, half_size + 1)) : 
+            g_filter[i, j] = two_dim_gaussian(x, y, std)    #* g_filter[0, 0] = gaussian(-2, -2, std) 
+            
     
     return g_filter
 
 
-def padding(img, padding_size, value) -> np.ndarray :
-    img_h = img.shape[0]    #* img.shape = (H, W, C)
+def padding(img, padding_size, value) :
+    ''' input : img, padding_size for one side, value to fill padding pixels
+        return : padded img with shape (h + 2p, w + 2p) ''' 
+    img_h = img.shape[0]    #* opencv imread -> img.shape = (H, W, C)
     img_w = img.shape[1]
-    padded_img = np.full((img_h + 2 * padding_size, img_w + 2 * padding_size), value)
-    padded_img[padding_size : -1 * padding_size, padding_size : -1 * padding_size] = img
+    
+    padded_img = np.full((img_h + 2 * padding_size, img_w + 2 * padding_size), value)    #* initialize with padded img shape, padding on both sides
+    padded_img[padding_size : -1 * padding_size, padding_size : -1 * padding_size] = img    #* fill with original img
+    
     return padded_img
      
 
-def gaussian_smoothing(img, kernel_size, guassian_std) -> np.ndarray :
+def gaussian_smoothing(img, kernel_size, gaussian_std) :
+    ''' input : img, smoothing kernel size, std for gaussian kernel
+        return : gaussian smoothed img ''' 
+        
     #* smoothing = linear filtering = convolution
-    g_filter = generate_gaussian_filter(kernel_size, guassian_std)
+    g_filter = generate_gaussian_filter(kernel_size, gaussian_std)    #* generate smoothing filter
     
     #* to remain same img size, do padding
     #* n = input img size, f = filter size, p = one-side padding size
@@ -36,7 +48,7 @@ def gaussian_smoothing(img, kernel_size, guassian_std) -> np.ndarray :
     padded_img = padding(img, padding_size, 0)    #* zero-padding
     
     img_h, img_w = img.shape[0], img.shape[1]
-    smoothed_img = np.zeros((img_h, img_w))
+    smoothed_img = np.zeros((img_h, img_w))    #* initialze, smoothed img has same shape as original img
     
     #* filtering (convolution)
     for i in range(img_h) :

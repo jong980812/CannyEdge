@@ -2,34 +2,45 @@ import numpy as np
 from gaussian import padding
 
 
-def derivative_of_2d_gaussian_by_x(x, y, std) -> float : 
-    return np.exp(-1 * (x**2 + y**2) / (2 * std**2)) / (2 * np.pi * std**4) * (-1 * x)    #* partial first derivative of 2d gaussian by x 
+def derivative_of_2d_gaussian_by_x(x, y, std) : 
+    ''' input : x, y coordinates, std for 2d gaussian distribution
+        return : the float value of partial first derivative of 2d gaussian by x  '''
+    return np.exp(-1 * (x**2 + y**2) / (2 * std**2)) / (2 * np.pi * std**4) * (-1 * x)    
 
-def derivative_of_2d_gaussian_by_y(x, y, std) -> float :
-    return np.exp(-1 * (x**2 + y**2) / (2 * std**2)) / (2 * np.pi * std**4) * (-1 * y)    #* partial first derivative of 2d gaussian by y
+def derivative_of_2d_gaussian_by_y(x, y, std) :
+    ''' input : x, y coordinates, std for 2d gaussian distribution
+        return : the float value of partial first derivative of 2d gaussian by y  '''
+    return np.exp(-1 * (x**2 + y**2) / (2 * std**2)) / (2 * np.pi * std**4) * (-1 * y)    
 
 
-def generate_DoG_filter(kernel_size, std) -> "(np.ndarray, np.ndarray)" :
-    DoG_x_filter = np.zeros((kernel_size, kernel_size))
+def generate_DoG_filter(kernel_size, std) :
+    ''' input : kernel_size, std for gaussian
+        return : (partial) derivative of gaussian filter matrix by x, by y '''
+    DoG_x_filter = np.zeros((kernel_size, kernel_size))    #* initialize, filter shape = (k, k)
     DoG_y_filter = np.zeros((kernel_size, kernel_size))
+    
     half_size = kernel_size // 2
+    #* use the center pixel in kernel as the origin
     for i, x in enumerate(range(-1 * half_size, half_size + 1)) :
         for j, y in enumerate(range(-1 * half_size, half_size + 1)) : 
-            DoG_x_filter[i, j] = derivative_of_2d_gaussian_by_x(x, y, std)
-            DoG_y_filter[i, j] = derivative_of_2d_gaussian_by_y(x, y, std)
+            DoG_x_filter[i, j] = derivative_of_2d_gaussian_by_x(x, y, std)   #* partial derivative of gaussian by x
+            DoG_y_filter[i, j] = derivative_of_2d_gaussian_by_y(x, y, std)   #* partial derivative of gaussian by y
     
     return DoG_x_filter, DoG_y_filter
 
 
+#* for both smoothing and derivative
 #* derivative(smoothing(img)) = derivative of gaussian(img)
-def derivative_of_gaussian_filtering(img, kernel_size, gaussian_std) -> "(np.ndarray, np.ndarray)" :
-    DoG_x_filter, DoG_y_filter = generate_DoG_filter(kernel_size, gaussian_std)
+def derivative_of_gaussian_filtering(img, kernel_size, gaussian_std) :
+    ''' input : img, DoG kernel size, std for gaussian distribution
+        return : img gradient matrices filled with DoG values by x, by y  '''
+    DoG_x_filter, DoG_y_filter = generate_DoG_filter(kernel_size, gaussian_std)    #* generate DoG filters
     
     padding_size = (kernel_size - 1) // 2
-    padded_img = padding(img, padding_size, 0)
+    padded_img = padding(img, padding_size, 0)    #* padding
     
-    img_h, img_w = img.shape[0], img.shape[1]
-    DoG_x_img = np.zeros((img_h, img_w))
+    img_h, img_w = img.shape[0], img.shape[1]    
+    DoG_x_img = np.zeros((img_h, img_w))    #* initialize, gradient matrices have same shape as original img
     DoG_y_img = np.zeros((img_h, img_w))
     
     #* filtering (convolution)
@@ -55,6 +66,7 @@ if __name__ == "__main__" :
 
     #* in terminal
     #* python derivative_of_gaussian.py --file_path /data/img.png --kernel_size 3 --gaussian_std 10
+    
     
     img = cv2.imread(args.file_path)
     img_name = args.file_path.split("/")[-1].split(".")[0]

@@ -1,12 +1,16 @@
 import numpy as np
 
 
-def gradient_magnitude(fx, fy) -> np.ndarray :
+def get_gradient_magnitude(fx, fy) -> np.ndarray :
+    ''' input : gradient differentiated by x, gradient differentiated by y
+        return : the magnitude of gradient '''
     return np.sqrt(np.power(fx, 2) + np.power(fy, 2))
     
     
-def gradient_angle(fx, fy) -> np.ndarray :
-    return np.arctan2(fy, fx)
+def get_gradient_angle(fx, fy) -> np.ndarray :
+    ''' input : gradient differentiated by x, gradient differentiated by y
+        return : the angle of gradient '''
+    return np.rad2deg(np.arctan2(fy, fx)) + 180  #* np.arctan2 return radian value
 
 
 if __name__ == "__main__" :
@@ -32,8 +36,8 @@ if __name__ == "__main__" :
 
     kernel_size, gaussian_std = 7, 1
     gray_DoG_x, gray_DoG_y = DoG(gray, kernel_size, gaussian_std)
-    gray_DoG_magnitude = gradient_magnitude(gray_DoG_x, gray_DoG_y)
-    gray_DoG_angle = gradient_angle(gray_DoG_x, gray_DoG_y)
+    gray_DoG_magnitude = get_gradient_magnitude(gray_DoG_x, gray_DoG_y)
+    gray_DoG_angle = get_gradient_angle(gray_DoG_x, gray_DoG_y)
     plt.imsave("img/{}_gray_DoG_magnitude_({},{}).png".format(img_name, kernel_size, gaussian_std), gray_DoG_magnitude, cmap='gray')
     plt.imsave("img/{}_gray_DoG_angle_({},{}).png".format(img_name, kernel_size, gaussian_std), gray_DoG_angle, cmap='gray')
     
@@ -42,8 +46,8 @@ if __name__ == "__main__" :
     from gaussian import gaussian_smoothing
     gray_smoothing = gaussian_smoothing(gray, kernel_size, gaussian_std)
     gray_DoG_x, gray_DoG_y = DoG(gray_smoothing, kernel_size, gaussian_std)
-    gray_DoG_magnitude = gradient_magnitude(gray_DoG_x, gray_DoG_y)
-    gray_DoG_angle = gradient_angle(gray_DoG_x, gray_DoG_y)
+    gray_DoG_magnitude = get_gradient_magnitude(gray_DoG_x, gray_DoG_y)
+    gray_DoG_angle = get_gradient_angle(gray_DoG_x, gray_DoG_y)
     plt.imsave("img/{}_gray_smoothing_DoG_magnitude_({},{}).png".format(img_name, kernel_size, gaussian_std), gray_DoG_magnitude, cmap='gray')
     plt.imsave("img/{}_gray_smoothing_DoG_angle_({},{}).png".format(img_name, kernel_size, gaussian_std), gray_DoG_angle, cmap='gray')
     #!###########################################
