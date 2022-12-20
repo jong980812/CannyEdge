@@ -3,7 +3,7 @@ import os
 import cv2
 import utils
 from preprocessing import Convert_gray, Get_filter_size,Get_filter_scope
-from smoothing import Get_filter
+from smoothing import Smoothing
 def get_args():
     parser = argparse.ArgumentParser('VideoMAE fine-tuning and evaluation script for video classification', add_help=False)
     parser.add_argument('--image_path',default=None,type=str,                               help='Set img path')
@@ -23,12 +23,14 @@ def main(args):
     gray_img=Convert_gray(img)
     
     if args.kernel_size is None:
-        filter_scope = Get_filter_scope(args.th, args.sigma)
-        filter_size = Get_filter_size(filter_scope)
+        filter_scope = int(Get_filter_scope(args.th, args.sigma))
+        filter_size = int(Get_filter_size(filter_scope))
     else:
         filter_size=args.kernel_size
-    filter=Get_filter(args.smoothing, args.sigma, filter_scope, filter_size)
-    
+        filter_scope=int((filter_size-1)/2)
+
+    Smoothing_img=Smoothing(gray_img, args.smoothing, args.sigma,filter_scope, filter_size)
+    utils.Show_smoothing_img(gray_img,Smoothing_img)
     
 
 if __name__== "__main__":
