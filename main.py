@@ -1,6 +1,7 @@
 import argparse
 import os
-from pathlib import Path
+import cv2
+from preprocessing import Convert_gray
 
 def get_args():
     parser = argparse.ArgumentParser('VideoMAE fine-tuning and evaluation script for video classification', add_help=False)
@@ -17,7 +18,8 @@ def get_args():
 
 def main(args):
     print(args)
-
+    img = cv2.imread('/Users/jongseo/Desktop/samples/다운로드.jpeg')
+    gray_img=Convert_gray(img)
 
 
 if __name__== "__main__":
