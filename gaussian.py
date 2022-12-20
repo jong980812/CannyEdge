@@ -5,7 +5,7 @@ def two_dim_gaussian_function(x, y, std) -> float :
     return np.exp(-1 * (x**2 + y**2) / (2 * std**2)) / (2 * np.pi * std**2)
 
 
-def gaussian_filter(kernel_size, std) -> np.array(int) :  
+def generate_gaussian_filter(kernel_size, std) -> np.array(int) :  
     g_filter = np.zeros((kernel_size, kernel_size))
     half_size = kernel_size // 2
     for i, x in enumerate(range(-1 * half_size, half_size + 1)) :
@@ -25,7 +25,7 @@ def padding(img, padding_size, value) -> np.array :
 
 def gaussian_smoothing(img, kernel_size, guassian_std) -> np.array :
     #* smoothing = linear filtering = convolution
-    g_filter = gaussian_filter(kernel_size, guassian_std)
+    g_filter = generate_gaussian_filter(kernel_size, guassian_std)
     
     #* to remain same img size, do padding
     #* n = input img size, f = filter size, p = one-side padding size
@@ -36,9 +36,10 @@ def gaussian_smoothing(img, kernel_size, guassian_std) -> np.array :
     img_h, img_w = img.shape[0], img.shape[1]
     smoothed_img = np.zeros((img_h, img_w))
     
+    #* filtering (convolution)
     for i in range(img_h) :
         for j in range(img_w) :
-            smoothed_img[i, j] = np.sum(padded_img[i : i + kernel_size, j : j + kernel_size] * g_filter)   #* element-wise multiplication = * in numpy
+            smoothed_img[i, j] = np.sum(padded_img[i : i + kernel_size, j : j + kernel_size] * g_filter)   #* element-wise multiplication == * in numpy
             
     return smoothed_img
 
@@ -55,6 +56,9 @@ if __name__ == "__main__" :
 
     args = parser.parse_args()
 
+    #* in terminal
+    #* python gaussian.py --file_path /data/img.png --kernel_size 3 --gaussian_std 10
+    
     img = cv2.imread(args.file_path)
     img_name = args.file_path.split("/")[-1].split(".")[0]
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
