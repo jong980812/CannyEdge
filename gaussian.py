@@ -12,6 +12,8 @@ def generate_gaussian_filter(kernel_size, std) -> np.ndarray :
         for j, y in enumerate(range(-1 * half_size, half_size + 1)) : 
             g_filter[i, j] = two_dim_gaussian(x, y, std)    #* g_filter[0, 0] = gaussian(-2, -2, std) if k = 3, 가우시안 필터 좌측 상단 첫번쨰 원소로는 원점에서 x축, y축 -2씩 떨어져있는 지점에서의 가우시안 값이 들어 감
     
+    print(g_filter)
+    
     return g_filter
 
 

@@ -10,7 +10,8 @@ Hysteresis
 ##### Complete
 gaussian.py
 derivative_of_gaussian.py
+gradient_magnitude_and_angle.py
 
 
 ##### Now  
-gradient_magnitude_and_angle.py
+nonmax_suppression.py
