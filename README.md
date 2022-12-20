@@ -11,7 +11,8 @@ Hysteresis
 gaussian.py
 derivative_of_gaussian.py
 gradient_magnitude_and_angle.py
+nonmax_suppression.py
 
 
 ##### Now  
-nonmax_suppression.py
+double_thresholding.py
