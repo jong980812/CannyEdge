@@ -29,7 +29,7 @@ def encoding_gradient_angle(gradient_angle) :
                 encoding_angle[i, j] = 0
             elif 22.5 <= gradient_angle[i, j] <= 67.5 or 202.5 <= gradient_angle[i, j] <= 247.5:
                 encoding_angle[i, j] = 1
-            elif 67.5 <= gradient_angle[i, j] <= 122.5 or 247.5 <= gradient_angle[i, j] <= 292.5:
+            elif 67.5 <= gradient_angle[i, j] <= 112.5 or 247.5 <= gradient_angle[i, j] <= 292.5:
                 encoding_angle[i, j] = 2
             elif 112.5 <= gradient_angle[i, j] <= 157.5 or 292.5 <= gradient_angle[i, j] <= 337.5:
                 encoding_angle[i, j] = 3
@@ -68,7 +68,10 @@ def nonmax_suppression(gradient_magnitude, gradient_angle) :
     for i in range(gradient_magnitude.shape[0] - 1) :
         for j in range(gradient_magnitude.shape[1] - 1) :
             gradient_direction = encoded_angle[i ,j]
-            left_pixel_coords, right_pixel_coords = directions_and_pixels_dict[gradient_direction][0], directions_and_pixels_dict[gradient_direction][1]    #* mapping gradient's direction into targeted pixels
+            
+            left_pixel_coords = [i + directions_and_pixels_dict[gradient_direction][0][0], j + directions_and_pixels_dict[gradient_direction][0][1]]    #* mapping gradient's direction into targeted pixels
+            right_pixel_coords = [i + directions_and_pixels_dict[gradient_direction][1][0], j + directions_and_pixels_dict[gradient_direction][1][1]]    
+            
             if check_am_i_maximum(left_pixel_coords, right_pixel_coords, gradient_magnitude) :    
                 suppressed_img[i, j] = gradient_magnitude[i, j]   
             else :
