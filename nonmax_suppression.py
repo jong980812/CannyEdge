@@ -51,7 +51,7 @@ def check_am_i_maximum(left_pixel_coords, right_pixel_coords, magnitude) :
     right_x, right_y = right_pixel_coords
     center_x, center_y = (left_x + right_x) // 2, (left_y + right_y) // 2 
     
-    if magnitude[left_x, left_y] <= magnitude[center_x, center_y] and magnitude[right_x, right_y] <= magnitude[center_x, center_y] :    #* if center pixel is maximum
+    if magnitude[left_x, left_y] <= magnitude[center_x, center_y] or magnitude[right_x, right_y] <= magnitude[center_x, center_y] :    #* if center pixel is maximum
         return True
     else :
         return False
@@ -78,6 +78,112 @@ def nonmax_suppression(gradient_magnitude, gradient_angle) :
                 suppressed_img[i, j] = 0    #* if center pixel is not the maximum, set to 0
                 
     return suppressed_img
+
+#!#########################################################################################################################################
+
+def encoding_gradient_angle_8types(gradient_angle) :
+    ''' input : angle matrix of img gradient
+        return : matrix filled with encoded values in [0, 1, 2, 3, 4, 5, 6, 7] according to the angle of gradient '''
+    encoding_angle = np.zeros((gradient_angle.shape[0], gradient_angle.shape[1]), dtype=int)
+        
+    #* divide angle into 8 types
+    #* divide 360° into 32 and encoding like this 
+    
+    for i in range(gradient_angle.shape[0]):
+        for j in range(gradient_angle.shape[1]):
+            if 0 <= gradient_angle[i, j] <= 11.25 or 348.75 <= gradient_angle[i, j] <= 360 or 168.75 <= gradient_angle[i, j] <= 191.25 :
+                encoding_angle[i, j] = 0
+            elif 11.25 <= gradient_angle[i, j] <= 33.75 or 191.25 <= gradient_angle[i, j] <= 213.75:
+                encoding_angle[i, j] = 1
+            elif 33.75 <= gradient_angle[i, j] <= 56.25 or 213.75 <= gradient_angle[i, j] <= 236.25:
+                encoding_angle[i, j] = 2
+            elif 56.25 <= gradient_angle[i, j] <= 78.75 or 236.25 <= gradient_angle[i, j] <= 258.75:
+                encoding_angle[i, j] = 3
+            elif 78.25 <= gradient_angle[i, j] <= 101.25 or 258.75 <= gradient_angle[i, j] <= 281.25:
+                encoding_angle[i, j] = 4
+            elif 101.25 <= gradient_angle[i, j] <= 123.75 or 281.25 <= gradient_angle[i, j] <= 303.75:
+                encoding_angle[i, j] = 5
+            elif 123.75 <= gradient_angle[i, j] <= 146.25 or 303.75 <= gradient_angle[i, j] <= 326.25:
+                encoding_angle[i, j] = 6
+            elif 146.25 <= gradient_angle[i, j] <= 168.75 or 326.25 <= gradient_angle[i, j] <= 348.75:
+                encoding_angle[i, j] = 7
+    
+    return encoding_angle
+
+
+directions_and_pixels_dict_with_8types = { 0 : [[0, -1], [0, +1]],       #* horizonal -> vertical
+                                           1 : [0, 2],                   #* use interpolated pixels
+                                           2 : [[-1, +1], [+1, -1]],     #* left diagonal -> right diagonal
+                                           3 : [2, 4],                   #* use interpolated pixels
+                                           4 : [[-1, 0], [+1, 0]],       #* vertical -> horizonal
+                                           5 : [4, 6],                   #* use interpolated pixels
+                                           6 : [[-1, -1], [+1, +1]],     #* right diagonal -> left diagonal  
+                                           7 : [6, 0]}                   #* use interpolated pixels
+
+
+def check_am_i_maximum_interpolation_pixels_ver(first_coords_for_left_pixel, second_coords_for_left_pixel, first_coords_for_right_pixel, second_coords_for_right_pixel, magnitude) :
+    ''' input : left and right pixels's coords list [x, y], img gradient magnitude
+        return : assert center pixel is maximum '''
+    x1, y1 = first_coords_for_left_pixel
+    x2, y2 = second_coords_for_left_pixel
+    x3, y3 = first_coords_for_right_pixel
+    x4, y4 = second_coords_for_right_pixel
+    center_x, center_y = (x1 + x2) // 2, (y1 + y2) // 2 
+    
+    #* get magnitude by interpolation
+    left_pixel_magnitude = (magnitude[x1, y1] + magnitude[x2, y2]) / 2
+    right_pixel_magnitude = (magnitude[x3, y3] + magnitude[x4, y4]) / 2
+    
+    if left_pixel_magnitude <= magnitude[center_x, center_y] or right_pixel_magnitude <= magnitude[center_x, center_y] :    #* if center pixel is maximum
+        return True
+    else :
+        return False
+
+
+def nonmax_suppression_with_8types_encoding(gradient_magnitude, gradient_angle) :
+    ''' input : magnitude and angle of img gradient
+        return : nonmax suppressed img '''
+
+    suppressed_img = np.zeros((gradient_magnitude.shape[0], gradient_magnitude.shape[1]))    #* initialize
+
+    encoded_angle = encoding_gradient_angle(gradient_angle)    #* encoding gradient's angle into 4 types
+    
+    for i in range(gradient_magnitude.shape[0] - 1) :
+        for j in range(gradient_magnitude.shape[1] - 1) :
+            gradient_direction = encoded_angle[i ,j]
+            
+            mapped_pixels = directions_and_pixels_dict_with_8types[gradient_direction]
+            
+            if type(mapped_pixels[0]) == list :
+                left_pixel_coords = [i + mapped_pixels[0][0], j + mapped_pixels[0][1]]    #* mapping gradient's direction into targeted pixels
+                right_pixel_coords = [i + mapped_pixels[1][0], j + mapped_pixels[1][1]]    
+            
+                #* nonmax suppression
+                if check_am_i_maximum(left_pixel_coords, right_pixel_coords, gradient_magnitude) :    
+                    suppressed_img[i, j] = gradient_magnitude[i, j]   
+                else :
+                    suppressed_img[i, j] = 0    #* if center pixel is not the maximum, set to 0
+            
+            elif type(mapped_pixels[0]) == int :
+                #* do interpolation to get perpendicular pixels to gradient direction
+                
+                #* get directions to be interpolated
+                first_interpolation_direction, second_interpolation_direction = mapped_pixels 
+                
+                #* get pixels coords 
+                first_coords_for_left_pixel = [i + directions_and_pixels_dict_with_8types[first_interpolation_direction][0][0], j + directions_and_pixels_dict_with_8types[first_interpolation_direction][0][1]]
+                second_coords_for_left_pixel = [i + directions_and_pixels_dict_with_8types[first_interpolation_direction][1][0], j + directions_and_pixels_dict_with_8types[first_interpolation_direction][1][1]]
+                first_coords_for_right_pixel = [i + directions_and_pixels_dict_with_8types[second_interpolation_direction][0][0], j + directions_and_pixels_dict_with_8types[second_interpolation_direction][0][1]]
+                second_coords_for_right_pixel = [i + directions_and_pixels_dict_with_8types[second_interpolation_direction][1][0], j + directions_and_pixels_dict_with_8types[second_interpolation_direction][1][1]]
+                
+                #* nonmax suppression
+                if check_am_i_maximum_interpolation_pixels_ver(first_coords_for_left_pixel, second_coords_for_left_pixel, first_coords_for_right_pixel, second_coords_for_right_pixel, gradient_magnitude) :    
+                    suppressed_img[i, j] = gradient_magnitude[i, j]   
+                else :
+                    suppressed_img[i, j] = 0
+            
+                
+    return suppressed_img
             
             
 if __name__ == "__main__" :
@@ -102,7 +208,7 @@ if __name__ == "__main__" :
     plt.figure(figsize = (8,8))
     plt.imsave("img/{}_gray.png".format(img_name), gray, cmap='gray')
 
-    kernel_size, gaussian_std = 7, 1
+    kernel_size, gaussian_std = 3, 10
     gray_DoG_x, gray_DoG_y = DoG(gray, kernel_size, gaussian_std)
     gray_DoG_magnitude = get_gradient_magnitude(gray_DoG_x, gray_DoG_y)
     gray_DoG_angle = get_gradient_angle(gray_DoG_x, gray_DoG_y)
@@ -111,8 +217,8 @@ if __name__ == "__main__" :
     
     plt.imsave("img/{}_gray_DoG_nms_({},{}).png".format(img_name, kernel_size, gaussian_std), gray_nms, cmap='gray')
     
-
+    gray_nms = nonmax_suppression_with_8types_encoding(gray_DoG_magnitude, gray_DoG_angle)
+    plt.imsave("img/{}_gray_DoG_nms_8types_({},{}).png".format(img_name, kernel_size, gaussian_std), gray_nms, cmap='gray')
+    plt.imsave("img/{}_gray_DoG_magnitude_({},{}).png".format(img_name, kernel_size, gaussian_std), gray_DoG_magnitude, cmap='gray')
     
     
-
-      
