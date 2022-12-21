@@ -67,14 +67,14 @@ def Get_gradient(img, filter):
     Set Filter,
     Convolution img, Filter
     '''
-    filter_scope = int(filter.shape[0]/2)
+    filter_scope = int(filter.shape[0]/2) #!filter scope를 수동으로 계산.
     filter_size = filter.shape[0]
-    gradient  = np.zeros_like(img)
+    gradient  = np.zeros_like(img)#! 빈 공간 초기화.
     padding_img = Get_paddig_image(img,filter_scope, filter_size)#@ it seeme like smoothing
     w,h=img.shape[0],img.shape[1]
     for x in range(w):
         for y in range(h):
-            gradient[x,y] = np.sum((padding_img[x:x+filter_size,y:y+filter_size] * filter)) 
+            gradient[x,y] = np.sum((padding_img[x:x+filter_size,y:y+filter_size] * filter)) #@ 필터링.컨벌루션연산과 비슷하다. 
     return gradient
 
 def Gradient_Magnitude_Angle(img, filter_name, size, sigma=None):
@@ -84,24 +84,24 @@ def Gradient_Magnitude_Angle(img, filter_name, size, sigma=None):
     #@ size: DoG,  size
     #@ sigma: DoG  sigma
     '''
-    if filter_name == "LoG":
+    if filter_name == "LoG":#@ LOG는 x,y구분 안해놔서 따로 구분.
         filter=Get_Derivative_Filter("LoG",size)
         gradient=Get_gradient(img,filter)
-        magnitude=gradient*255/gradient.max()
+        magnitude=gradient*255/gradient.max()#! normalize
         return magnitude,None #! LoG can't return ANgle
     
     filter_x, filter_y= Get_Derivative_Filter(filter_name, size, sigma) #! Get filter x, y
-    gradient_x=Get_gradient(img, filter_x)
+    gradient_x=Get_gradient(img, filter_x)#@ 각 gradient를 받는다. 
     gradient_y=Get_gradient(img, filter_y)
 
-    magnitude=np.sqrt((gradient_x**2)+(gradient_y**2))
-    magnitude = magnitude * 255 / magnitude.max()
+    magnitude=np.sqrt((gradient_x**2)+(gradient_y**2)) #! 크기 구한다. 
+    magnitude = magnitude * 255 / magnitude.max() #! normalize
     
     angle=np.zeros_like(gradient_x)
     angle=np.rad2deg(np.arctan2(gradient_y,gradient_x,)) #@ y/x to angle degree
-    return np.around(magnitude), angle+180
+    return np.around(magnitude), angle+180 #! 0~360으로 바꾸기위해서 
 def Get_edge_LoG(mag,threshold=0.5):
     result=np.zeros_like(mag)
-    threshold=255*threshold
-    result[mag>=threshold] = 255
+    threshold=100*threshold#정규화
+    result[mag>=threshold] = 255 # thresholding
     return result
