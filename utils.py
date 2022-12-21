@@ -1,6 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import cv2
+import os
 def arg_print(args):
     print("-------------------------------Argument------------------------------------")
     for k, v in vars(args).items():
@@ -37,6 +38,8 @@ def Show_img(original):
     plt.figure(figsize=(10,10))
     plt.imshow(original, cmap='gray')
     plt.show()
+def Save_img(original,path,tag):
+    plt.imsave(path+f'_{tag}.jpg',original,cmap='gray')
 def MakeGrid(size : int)->np.ndarray:
     '''
     #@ size: number of grid width,height -> filter_scope
@@ -44,3 +47,5 @@ def MakeGrid(size : int)->np.ndarray:
     '''
     x,y = np.meshgrid(range(-int(size), int(size) + 1), range(-int(size), int(size) + 1))
     return x,y
+def print_bar():
+    print("--------------------------------------------------------------")

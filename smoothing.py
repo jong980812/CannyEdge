@@ -2,8 +2,6 @@ import numpy as np
 from utils import Get_paddig_image, MakeGrid
 PI=np.pi
 
-
-
 def Get_Gaussian_2d(x:np.ndarray=None ,y:np.ndarray=None ,sigma=None)->np.ndarray:
     '''
     Gaussian 2d function

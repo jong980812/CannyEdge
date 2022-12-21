@@ -29,5 +29,6 @@ def Get_filter_scope(threshold : float, sigma: float)->int :
     scope = np.sqrt(ln_term * 2 * (sigma ** 2))
     filter_scope = np.round(scope)
     return filter_scope
+
 def Get_filter_size(filter_scope:int)->int:
     return filter_scope * 2 + 1    
