@@ -35,6 +35,14 @@ def Get_Derivative_Filter(gradient:str, size=None, sigma=None)->tuple:
                             [ 0, 0, 0],
                             [-1,-1,-1]])
         return (filter_x,filter_y)
+    elif gradient == "Robert":
+        filter_x = np.array([[0, 0, -1],
+                             [0, 1, 0],
+                             [0, 0, 0]])
+        filter_y = np.array([[-1, 0, 0],
+                             [0, 1, 0],
+                             [0, 0, 0]])
+        return (filter_x,filter_y)
     elif gradient == "Scharr":
         filter_x = np.array([[-3, 0, 3],
                              [-10,0,10],

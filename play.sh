@@ -1,0 +1,9 @@
+python main.py \
+--image_path ./img/MyPhoto.jpeg \
+--output_img_name My \
+--run_dir ./ \
+--smoothing gaussian \
+--sigma 1 \
+--th 0.05 \
+--gradient_method Sobel \
+--hysterisis_th 0.15 0.25

@@ -22,7 +22,7 @@ filter_size: 가우시안이 가야할 칸 * 2 를 한 뒤 홀수가 되야하�
 
 
 def get_args():
-    parser = argparse.ArgumentParser('VideoMAE fine-tuning and evaluation script for video classification', add_help=False)
+    parser = argparse.ArgumentParser('Edge Detector', add_help=False)
     parser.add_argument('--image_path',default=None,type=str,                               help='이미지 경로')
     parser.add_argument('--output_img_name', type=str, default='result',                    help="저장할 이미지의 고유 이름")
     parser.add_argument('--run_dir', default='./', type=str,                                help='현재 돌리는 파일 디렉토리' )
